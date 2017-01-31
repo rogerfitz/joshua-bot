@@ -3,7 +3,7 @@ from flask import Flask, request, Response
 from slackclient import SlackClient
 from twilio import twiml
 from twilio.rest import TwilioRestClient
-
+import trains
 
 SLACK_WEBHOOK_SECRET = os.environ.get('SLACK_WEBHOOK_SECRET', None)
 TWILIO_NUMBER = os.environ.get('TWILIO_NUMBER', None)
@@ -17,14 +17,20 @@ twilio_client = TwilioRestClient()
 @app.route('/twilio', methods=['POST'])
 def twilio_post():
     response = twiml.Response()
+    message = request.form['Body']
     print(request.form)
+    response="Could not understand query"
+    if "MERCHANDISE MART" in message.upper():
+        message=trains.requestTrainSchedule("MERCHANDISE MART")
+    elif "SOUTHPORT" in message.upper():
+        message=trains.requestTrainSchedule("SOUTHPORT")
     if request.form['From'] == USER_NUMBER or True:
-        message = request.form['Body']
+        
         slack_client.api_call("chat.postMessage", channel="#general",
                               text=message, username=request.form['From'],
                               icon_emoji=':robot_face:')
         twilio_client.messages.create(to=request.form['From'], from_=TWILIO_NUMBER,
-                                      body='mmmmm'+request.form['Body'])
+                                      body=response)
     return Response(response.toxml(), mimetype="text/xml"), 200
 
 
