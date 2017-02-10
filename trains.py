@@ -21,4 +21,4 @@ def parseTrainHTML(soup):
     return response_str
 
 if __name__=="__main__":
-    requestTrainSchedule("Merchandise Mart")
+    print(requestTrainSchedule("Merchandise Mart"))
